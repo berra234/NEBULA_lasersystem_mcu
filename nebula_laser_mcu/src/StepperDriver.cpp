@@ -1,0 +1,34 @@
+
+#include "StepperDriver.h"
+
+StepperDriver::StepperDriver(int stepPin, int dirPin) 
+    : _stepPin(stepPin), _dirPin(dirPin) {} 
+
+void StepperDriver::begin() { 
+    pinMode(_stepPin, OUTPUT);
+    pinMode(_dirPin, OUTPUT);
+    digitalWrite(_stepPin, LOW);
+}
+
+void StepperDriver::setDirection(bool dir) { //parametre olarak verilen 0 veya 1 e göre dir pinini ayarlar + veya - yönde dönmesini buradan ayarlıyor.
+    digitalWrite(_dirPin, dir);
+}
+
+void StepperDriver::setEnable(bool state) { //motoru durdurma ve çalıştırma servisi 
+    digitalWrite(MOTOR_ENABLE_PIN, state ? LOW : HIGH); 
+}
+
+void StepperDriver::step(int steps) {
+    if (steps == 0) return;
+    
+    bool dir = (steps > 0);
+    setDirection(dir);
+    
+    int absSteps = abs(steps);
+    for (int i = 0; i < absSteps; i++) {
+        digitalWrite(_stepPin, HIGH);
+        delayMicroseconds(80); // 500'den 100'e çektik: Motor daha hızlı ve seri tepkisi için
+        digitalWrite(_stepPin, LOW);
+        delayMicroseconds(80); 
+    }
+}
